@@ -20,7 +20,9 @@ order, and objects to some extend can be stored in many orders. This is
 because the format doesn't need this information to be efficient, and it
 leaves room for optimization and extension (for example, fields can be
 packed in a way that is most compact). Instead, the format is defined in
-terms of offsets and adjacency only.
+terms of offsets and adjacency only. This may mean two different
+implementations may produce different binaries given the same input
+values, and this is perfectly valid.
 
 ### Format identification
 
@@ -71,8 +73,10 @@ code.
 
 ### Tables
 
-These start with an `soffset_t` to a vtable (signed version of
-`uoffset_t`, since vtables may be stored anywhere), followed by all the
+These start with an `soffset_t` to a vtable. This is a signed version of
+`uoffset_t`, since vtables may be stored anywhere relative to the object.
+This offset is substracted (not added) from the object start to arrive at
+the vtable start. This offset is followed by all the
 fields as aligned scalars (or offsets). Unlike structs, not all fields
 need to be present. There is no set order and layout.
 
@@ -81,9 +85,9 @@ through a vtable of offsets. Vtables are shared between any objects that
 happen to have the same vtable values.
 
 The elements of a vtable are all of type `voffset_t`, which is
-a `uint16_t`. The first element is the number of elements of the vtable,
-including this one. The second one is the size of the object, in bytes
-(including the vtable offset). This size is used for streaming, to know
+a `uint16_t`. The first element is the size of the vtable in bytes,
+including the size element. The second one is the size of the object, in bytes
+(including the vtable offset). This size could be used for streaming, to know
 how many bytes to read to be able to access all fields of the object.
 The remaining elements are the N offsets, where N is the amount of fields
 declared in the schema when the code that constructed this buffer was
@@ -157,7 +161,8 @@ Unions share a lot with enums.
     struct Vec3;
     struct Monster;
 
-Predeclare all datatypes since there may be circular references.
+Predeclare all data types since circular references between types are allowed
+(circular references between object are not, though).
 
     MANUALLY_ALIGNED_STRUCT(4) Vec3 {
      private:

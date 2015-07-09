@@ -37,8 +37,9 @@ int main(int /*argc*/, const char * /*argv*/[]) {
 
   // parse schema first, so we can use it to parse the data after
   flatbuffers::Parser parser;
-  ok = parser.Parse(schemafile.c_str()) &&
-       parser.Parse(jsonfile.c_str());
+  const char *include_directories[] = { "samples", nullptr };
+  ok = parser.Parse(schemafile.c_str(), include_directories) &&
+       parser.Parse(jsonfile.c_str(), include_directories);
   assert(ok);
 
   // here, parser.builder_ contains a binary buffer that is the parsed data.
@@ -46,7 +47,8 @@ int main(int /*argc*/, const char * /*argv*/[]) {
   // to ensure it is correct, we now generate text back from the binary,
   // and compare the two:
   std::string jsongen;
-  GenerateText(parser, parser.builder_.GetBufferPointer(), 2, &jsongen);
+  GenerateText(parser, parser.builder_.GetBufferPointer(),
+               flatbuffers::GeneratorOptions(), &jsongen);
 
   if (jsongen != jsonfile) {
     printf("%s----------------\n%s", jsongen.c_str(), jsonfile.c_str());

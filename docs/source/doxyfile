@@ -748,7 +748,9 @@ INPUT = "FlatBuffers.md" \
         "Compiler.md" \
         "Schemas.md" \
         "CppUsage.md" \
+        "GoUsage.md" \
         "JavaUsage.md" \
+        "PythonUsage.md" \
         "Benchmarks.md" \
         "WhitePaper.md" \
         "Internals.md" \
